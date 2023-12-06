@@ -2,6 +2,7 @@ import pandas as pd
 import requests
 
 
+
 bnf_url = 'https://www.nseindia.com/api/option-chain-indices?symbol=BANKNIFTY'
 
 nf_url = 'https://www.nseindia.com/api/option-chain-indices?symbol=BANKNIFTY'
@@ -34,6 +35,16 @@ for i in data:
             
 
 df = pd.DataFrame(ocdata)
-
+df= df[df["expiryDate"] == "06-Dec-2023"]
+df[df.openInterest > 0]
         
-df
+# req_list = ["strikePrice","expiryDate","underlying","lastPrice","instrumentType"]
+
+
+
+# df_selected = df[req_list]
+# ded = '06-Dec-2023'
+# df_filtered = df_selected[df_selected['expiryDate'] == ded]
+# # df_new = df_filtered[df_filtered['strikePrice'] == 46900]
+
+# df_filtered
