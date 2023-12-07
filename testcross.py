@@ -1,5 +1,6 @@
 import pandas as pd
 import requests
+from datetime import datetime
 
 def getdata(symbol):
     url = f'https://www.nseindia.com/api/option-chain-indices?symbol={symbol}'
@@ -18,8 +19,12 @@ def getdata(symbol):
         response = session.get(url, headers=headers)
         response.raise_for_status()  # Raise an exception for bad responses (4xx or 5xx)
         data = response.json()["records"]["data"]
+        exp_dates = response.json()["records"]["expiryDates"]
+        
         
         ocdata = []
+        
+        
         for i in data:
             for j, k in i.items():
                 if j == 'PE' or j == 'CE':
@@ -27,22 +32,28 @@ def getdata(symbol):
                     info["instrumentType"] = j
                     ocdata.append(info)
 
+        
+            
+
+            
+        
+            
         df = pd.DataFrame(ocdata)
         df_pe = df[df['instrumentType'] == 'PE']
         df_ce = df[df['instrumentType'] == 'CE']
         merged_df = pd.merge(df_ce, df_pe, on=['strikePrice', 'expiryDate'], suffixes=('_CE', '_PE'), how='outer')
 
-        unique_expiry_dates = merged_df['expiryDate'].unique()
+        
+        
+        df_exp_dates = pd.DataFrame({'Date': exp_dates})
+        unique_expiry_dates = df_exp_dates['Date'].unique()
         unique_expiry_dates = sorted(pd.to_datetime(unique_expiry_dates, format='%d-%b-%Y'))
 
-        return merged_df, unique_expiry_dates
+        return merged_df,unique_expiry_dates
 
     except requests.RequestException as e:
         print(f"Error fetching data: {e}")
         return None, None
 
-# Example usage
-symbol_data, expiry_dates = getdata(symbol="NIFTY")
-if symbol_data is not None:
-    print(symbol_data.head())
-    print(expiry_dates)
+
+    
